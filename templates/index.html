@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>এআই মাস্টার ড্যাশবোর্ড</title>
+    <style>
+        :root {
+            --bg-color: #1a1a2e;
+            --card-bg: #16213e;
+            --accent-color: #0f3460;
+            --text-color: #e94560;
+            --input-bg: #1f4068;
+            --light-text: #ffffff;
+        }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--light-text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            max-width: 500px;
+            width: 100%;
+            border-top: 5px solid var(--text-color);
+        }
+        h2 {
+            text-align: center;
+            color: var(--text-color);
+            margin-bottom: 25px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #bfa1a4;
+        }
+        input[type="text"], input[type="file"] {
+            width: 100%;
+            padding: 12px;
+            box-sizing: border-box;
+            background-color: var(--input-bg);
+            border: 1px solid #30475e;
+            border-radius: 8px;
+            color: white;
+        }
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--text-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>🤖 এআই মাস্টার ড্যাশবোর্ড</h2>
+    <div style="background: rgba(233, 69, 96, 0.1); padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid var(--text-color);">
+        <span style="font-weight: bold; color: var(--text-color);">📸 মাল্টিপল ছবি থেকে ফেসবুক পোস্ট:</span>
+        <p style="margin: 5px 0 0 0; font-size: 13px; color: #cbd5e1;">আপনার প্রোডাক্টের এক বা একাধিক ছবি সিলেক্ট করুন। AI সবগুলো ছবি দেখে সুন্দর ক্যাপশন তৈরি করে পেজে অটো-পোস্ট করে দেবে।</p>
+    </div>
+    <form action="/upload-post" method="POST" enctype="multipart/form-data">
+        <div class="form-group">
+            <label>১. প্রোডাক্টের ছবি সিলেক্ট করুন (একাধিক সম্ভব)</label>
+            <input type="file" name="file" accept="image/*" multiple required>
+        </div>
+        <div class="form-group">
+            <label>২. ফেসবুক পেজ আইডি (Page ID)</label>
+            <input type="text" name="page_id" placeholder="Enter Page ID" required>
+        </div>
+        <div class="form-group">
+            <label>৩. পেজ অ্যাক্সেস টোকেন (Page Access Token)</label>
+            <input type="text" name="token" placeholder="Enter Facebook Page Token" required>
+        </div>
+        <div class="form-group">
+            <label>৪. গুগলের জেমিনি এপিআই কি (Gemini API Key)</label>
+            <input type="text" name="gemini_key" placeholder="Enter Gemini API Key (AQ.Ab8RN6...)" required>
+        </div>
+        <button type="submit" class="btn">🚀 এআই ক্যাপশন জেনারেট ও অটো-পোস্ট করুন</button>
+    </form>
+</div>
+</body>
+</html>
