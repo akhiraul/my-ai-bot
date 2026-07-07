@@ -22,7 +22,7 @@ def upload_post():
     # ড্যাশবোর্ড থেকে পাওয়া Gemini Key দিয়ে তাৎক্ষণিক কনফিগার করা
     try:
         genai.configure(api_key=gemini_key)
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        model = genai.GenerativeModel('gemini-pro')
     except Exception as e:
         return jsonify({"status": "Gemini Configuration Error", "message": str(e)}), 400
         
