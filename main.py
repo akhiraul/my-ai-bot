@@ -1,6 +1,7 @@
 import os
+import json
+import base64
 import requests
-import google.generativeai as genai
 from flask import Flask, request, jsonify, render_template
 
 app = Flask(__name__)
@@ -19,45 +20,57 @@ def upload_post():
     if not uploaded_files or not page_id or not token or not gemini_key:
         return jsonify({"status": "Error", "message": "Missing fields"}), 400
         
-    try:
-        # ক্লায়েন্ট অপশন বাদ দিয়ে সরাসরি এনভায়রনমেন্ট মেথডে v1 এপিআই রুট লক করা হলো
-        os.environ["API_VERSION"] = "v1"
-        genai.configure(api_key=gemini_key)
-        model = genai.GenerativeModel('gemini-pro')
-    except Exception as e:
-        return jsonify({"status": "Gemini Configuration Error", "message": str(e)}), 400
-        
-    images_data = []
+    # ছবিগুলোকে জেমিনি এপিআই-এর উপযুক্ত ফরম্যাটে বেস৬৪-এ কনভার্ট করা
+    contents_parts = []
     for file in uploaded_files:
         if file.filename != '':
             file_bytes = file.read()
-            images_data.append({
-                "mime_type": file.mimetype,
-                "data": file_bytes
+            base64_data = base64.b64encode(file_bytes).decode('utf-8')
+            contents_parts.append({
+                "inline_data": {
+                    "mime_type": file.mimetype,
+                    "data": base64_data
+                }
             })
             
-    if not images_data:
+    if not contents_parts:
         return jsonify({"status": "Error", "message": "No valid images uploaded"}), 400
 
+    # প্রম্পট টেক্সট যোগ করা
+    contents_parts.append({
+        "text": "Analyze these product images and create an engaging, highly professional promotional Facebook post in Bengali. Include relevant hashtags."
+    })
+
     try:
-        prompt = "Analyze these product images and create an engaging, highly professional promotional Facebook post in Bengali. Include relevant hashtags."
-        content_parts = images_data + [prompt]
-        response = model.generate_content(content_parts)
-        caption = response.text
+        # সরাসরি গুগলের অফিশিয়াল v1 স্টেবল এপিআই লিংকে রিকোয়েস্ট পাঠানো (কোনো ওল্ড বেটা রুট নেই)
+        gemini_url = f"https://googleapis.com{gemini_key}"
+        headers = {'Content-Type': 'application/json'}
+        payload = {"contents": [{"parts": contents_parts}]}
         
+        gemini_response = requests.post(gemini_url, headers=headers, json=payload)
+        gemini_res_data = gemini_response.json()
+        
+        # জেমিনি থেকে ক্যাপশন বের করা
+        if 'candidates' in gemini_res_data:
+            caption = gemini_res_data['candidates'][0]['content']['parts'][0]['text']
+        else:
+            return jsonify({"status": "Gemini API Error", "message": gemini_res_data}), 400
+        
+        # ফেসবুক গ্রাফ এপিআই দিয়ে পেজে পোস্ট পাঠানো
         fb_url = f"https://facebook.com{page_id}/photos"
-        payload = {
+        fb_payload = {
             'caption': caption,
             'access_token': token
         }
         
+        # প্রথম ছবিটিকে পোস্টের কন্টেন্ট ফাইল হিসেবে ফেসবুক সার্ভারে রি-রিড করে পাঠানো
         first_file = uploaded_files[0]
         first_file.seek(0)
         files = {
             'source': (first_file.filename, first_file.read(), first_file.mimetype)
         }
         
-        fb_response = requests.post(fb_url, data=payload, files=files)
+        fb_response = requests.post(fb_url, data=fb_payload, files=files)
         fb_res_data = fb_response.json()
         
         if "id" in fb_res_data:
