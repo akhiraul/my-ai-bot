@@ -19,8 +19,8 @@ def upload_post():
     if not uploaded_files or not page_id or not token or not gemini_key:
         return jsonify({"status": "Error", "message": "Missing fields"}), 400
         
-    # ড্যাশবোর্ড থেকে পাওয়া Gemini Key দিয়ে তাৎক্ষণিক কনফিগার করা
     try:
+        # নতুন এপিআই কি এর জন্য gemini-pro মডেলটি সেট করা হলো
         genai.configure(api_key=gemini_key)
         model = genai.GenerativeModel('gemini-pro')
     except Exception as e:
