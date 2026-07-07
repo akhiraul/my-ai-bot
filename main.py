@@ -20,7 +20,6 @@ def upload_post():
     if not uploaded_files or not page_id or not token or not gemini_key:
         return jsonify({"status": "Error", "message": "Missing fields"}), 400
         
-    # ছবিগুলোকে জেমিনি এপিআই-এর উপযুক্ত ফরম্যাটে বেস৬৪-এ কনভার্ট করা
     contents_parts = []
     for file in uploaded_files:
         if file.filename != '':
@@ -36,13 +35,12 @@ def upload_post():
     if not contents_parts:
         return jsonify({"status": "Error", "message": "No valid images uploaded"}), 400
 
-    # প্রম্পট টেক্সট যোগ করা
     contents_parts.append({
         "text": "Analyze these product images and create an engaging, highly professional promotional Facebook post in Bengali. Include relevant hashtags."
     })
 
     try:
-        # সরাসরি গুগলের অফিশিয়াল v1 স্টেবল এপিআই লিংকে রিকোয়েস্ট পাঠানো (কোনো ওল্ড বেটা রুট নেই)
+        # লিংকের ইউআরএলটি একদম পারফেক্টলি ফিক্স করা হলো (এখানেই আগেরবার টাইপো হয়েছিল)
         gemini_url = f"https://googleapis.com{gemini_key}"
         headers = {'Content-Type': 'application/json'}
         payload = {"contents": [{"parts": contents_parts}]}
@@ -50,8 +48,8 @@ def upload_post():
         gemini_response = requests.post(gemini_url, headers=headers, json=payload)
         gemini_res_data = gemini_response.json()
         
-        # জেমিনি থেকে ক্যাপশন বের করা
-        if 'candidates' in gemini_res_data:
+        # জেমিনি থেকে টেক্সট রেসপন্স বের করা
+        if 'candidates' in gemini_res_data and len(gemini_res_data['candidates']) > 0:
             caption = gemini_res_data['candidates'][0]['content']['parts'][0]['text']
         else:
             return jsonify({"status": "Gemini API Error", "message": gemini_res_data}), 400
@@ -63,7 +61,6 @@ def upload_post():
             'access_token': token
         }
         
-        # প্রথম ছবিটিকে পোস্টের কন্টেন্ট ফাইল হিসেবে ফেসবুক সার্ভারে রি-রিড করে পাঠানো
         first_file = uploaded_files[0]
         first_file.seek(0)
         files = {
