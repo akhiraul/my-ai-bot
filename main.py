@@ -20,8 +20,9 @@ def upload_post():
         return jsonify({"status": "Error", "message": "Missing fields"}), 400
         
     try:
-        # নতুন এপিআই কি এর জন্য gemini-pro মডেলটি সেট করা হলো
-        genai.configure(api_key=gemini_key)
+        # এখানে সরাসরি লেটেস্ট v1 এপিআই ভার্সনটি লক করে দেওয়া হলো
+        client_options = {"api_version": "v1"}
+        genai.configure(api_key=gemini_key, client_options=client_options)
         model = genai.GenerativeModel('gemini-pro')
     except Exception as e:
         return jsonify({"status": "Gemini Configuration Error", "message": str(e)}), 400
